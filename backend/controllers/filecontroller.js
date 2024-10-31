@@ -3,20 +3,54 @@
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 
-// In-memory storage for processed files
-const processedFiles = new Map();
+// Configurable chunk size for batch processing
+const BATCH_SIZE = 5;
+const MAX_CONCURRENT_BATCHES = 2;
+
+// LRU Cache implementation for processed files
+class LRUCache {
+  constructor(maxSize = 100) {
+    this.maxSize = maxSize;
+    this.cache = new Map();
+    this.queue = [];
+  }
+
+  set(key, value) {
+    if (this.queue.length >= this.maxSize) {
+      const oldestKey = this.queue.shift();
+      this.cache.delete(oldestKey);
+    }
+    this.cache.set(key, value);
+    this.queue.push(key);
+  }
+
+  get(key) {
+    if (!this.cache.has(key)) return null;
+    // Move to end of queue (most recently used)
+    this.queue = this.queue.filter((k) => k !== key);
+    this.queue.push(key);
+    return this.cache.get(key);
+  }
+
+  delete(key) {
+    this.cache.delete(key);
+    this.queue = this.queue.filter((k) => k !== key);
+  }
+}
+
+const processedFiles = new LRUCache(100);
 
 // Cleanup old files every hour
 setInterval(() => {
   const oneHourAgo = Date.now() - 3600000;
-  for (const [key, value] of processedFiles.entries()) {
+  for (const key of processedFiles.queue) {
+    const value = processedFiles.get(key);
     if (value.timestamp < oneHourAgo) {
       processedFiles.delete(key);
     }
   }
 }, 3600000);
 
-// Helper function to get correct extension and mime type
 const getFormatInfo = (format) => {
   switch (format.toLowerCase()) {
     case "webp":
@@ -31,14 +65,11 @@ const getFormatInfo = (format) => {
   }
 };
 
-// Process a single image with error handling and delay
 const processSingleImage = async (file, format, quality) => {
   try {
     const formatInfo = getFormatInfo(format);
 
     let processedImage = sharp(file.buffer);
-
-    // Get image metadata
     const metadata = await processedImage.metadata();
 
     // Apply compression based on format
@@ -58,7 +89,6 @@ const processSingleImage = async (file, format, quality) => {
     const processedBuffer = await processedImage.toBuffer();
     const fileId = uuidv4();
 
-    // Store processed file with additional metadata
     processedFiles.set(fileId, {
       buffer: processedBuffer,
       originalName: file.originalname,
@@ -71,6 +101,9 @@ const processSingleImage = async (file, format, quality) => {
         size: processedBuffer.length,
       },
     });
+
+    // Clear file buffer to free memory
+    file.buffer = null;
 
     return {
       fileId,
@@ -88,24 +121,59 @@ const processSingleImage = async (file, format, quality) => {
   }
 };
 
-// Process files sequentially with delay
-const processFilesSequentially = async (files, format, quality) => {
+// Process files in batches with concurrent execution
+const processFilesBatched = async (files, format, quality) => {
   const results = [];
   const failures = [];
 
-  for (const file of files) {
-    try {
-      // Add delay between processing files
-      if (results.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+  // Split files into batches
+  const batches = [];
+  for (let i = 0; i < files.length; i += BATCH_SIZE) {
+    batches.push(files.slice(i, i + BATCH_SIZE));
+  }
+
+  // Process batches with limited concurrency
+  for (let i = 0; i < batches.length; i += MAX_CONCURRENT_BATCHES) {
+    const currentBatches = batches.slice(i, i + MAX_CONCURRENT_BATCHES);
+
+    const batchPromises = currentBatches.map((batch) =>
+      Promise.all(
+        batch.map(async (file) => {
+          try {
+            const result = await processSingleImage(file, format, quality);
+            return { success: true, result };
+          } catch (error) {
+            return {
+              success: false,
+              error: {
+                fileName: file.originalname,
+                error: error.message,
+              },
+            };
+          }
+        })
+      )
+    );
+
+    const batchResults = await Promise.all(batchPromises);
+
+    // Collect results and failures
+    batchResults.flat().forEach((item) => {
+      if (item.success) {
+        results.push(item.result);
+      } else {
+        failures.push(item.error);
       }
-      const result = await processSingleImage(file, format, quality);
-      results.push(result);
-    } catch (error) {
-      failures.push({
-        fileName: file.originalname,
-        error: error.message,
-      });
+    });
+
+    // Add small delay between batches to prevent overwhelming the system
+    if (i + MAX_CONCURRENT_BATCHES < batches.length) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    // Force garbage collection if available
+    if (global.gc) {
+      global.gc();
     }
   }
 
@@ -127,7 +195,7 @@ export const processImages = async (req, res) => {
         .json({ message: "Quality must be between 1 and 100" });
     }
 
-    const { results, failures } = await processFilesSequentially(
+    const { results, failures } = await processFilesBatched(
       req.files,
       format,
       quality
@@ -157,7 +225,6 @@ export const downloadFile = (req, res) => {
     return res.status(404).json({ message: "File not found or expired" });
   }
 
-  // Generate clean filename without original extension
   const baseFileName = file.originalName.split(".")[0];
   const fileName = `${baseFileName}.${file.format}`;
 
