@@ -1,11 +1,15 @@
-// src/components/Header.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
-    <header className="bg-gradient-primary text-white py-4 shadow-lg">
+    <header className="bg-black text-white py-4 shadow-lg font-mono">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center">FASTIMAGES</h1>
+        <Link to="/" className="block">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center hover:text-gray-300 transition-colors duration-200">
+            Fast Images
+          </h1>
+        </Link>
       </div>
     </header>
   );
