@@ -19,16 +19,6 @@ const ImageCompressor = () => {
   const [afterSize, setAfterSize] = useState(0);
   const [alreadyOptimizedFiles, setAlreadyOptimizedFiles] = useState(new Set());
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  const api = axios.create({
-    baseURL: API_URL,
-    timeout: 30000,
-    headers: {
-      Accept: "application/json",
-    },
-  });
-
   const removeFileExtension = (filename) => {
     return filename.replace(/\.[^/.]+$/, "");
   };
@@ -66,7 +56,9 @@ const ImageCompressor = () => {
   const handleDownload = async (fileId, originalName) => {
     try {
       setDownloading(true);
-      const response = await api.get(`/api/files/download/${fileId}`, {
+      const response = await axios({
+        url: `http://localhost:5000/api/files/download/${fileId}`,
+        method: "GET",
         responseType: "blob",
       });
 
@@ -96,16 +88,15 @@ const ImageCompressor = () => {
 
     setDownloading(true);
     try {
-      const response = await api.post(
-        "/api/files/download-all",
-        { fileIds: results.map((r) => r.fileId) },
-        {
-          responseType: "blob",
-          headers: {
-            Accept: "application/zip",
-          },
-        }
-      );
+      const response = await axios({
+        url: "http://localhost:5000/api/files/download-all",
+        method: "POST",
+        data: { fileIds: results.map((r) => r.fileId) },
+        responseType: "blob",
+        headers: {
+          Accept: "application/zip",
+        },
+      });
 
       const blob = new Blob([response.data], { type: "application/zip" });
       const url = window.URL.createObjectURL(blob);
@@ -125,6 +116,21 @@ const ImageCompressor = () => {
     }
   };
 
+  const calculateSizeReduction = () => {
+    if (beforeSize && afterSize) {
+      const reduction = beforeSize - afterSize;
+      return reduction > 0 ? reduction : 0;
+    }
+    return 0;
+  };
+
+  const calculateCompressionPercentage = () => {
+    if (beforeSize && afterSize && beforeSize > afterSize) {
+      return (((beforeSize - afterSize) / beforeSize) * 100).toFixed(1);
+    }
+    return 0;
+  };
+
   const handleUpload = async () => {
     if (files.length === 0) return;
 
@@ -138,34 +144,20 @@ const ImageCompressor = () => {
     formData.append("quality", quality);
 
     try {
-      const response = await api.post("/api/files/convert", formData, {
-        onUploadProgress: (progressEvent) => {
-          const progress = (progressEvent.loaded / progressEvent.total) * 100;
-          const newProgress = {};
-          files.forEach(({ id }) => {
-            newProgress[id] = progress;
-          });
-          setFileProgress(newProgress);
-        },
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      const calculateSizeReduction = () => {
-        if (beforeSize && afterSize) {
-          const reduction = beforeSize - afterSize;
-          return reduction > 0 ? reduction : 0;
+      const response = await axios.post(
+        "http://localhost:5000/api/files/convert",
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            const newProgress = {};
+            files.forEach(({ id }) => {
+              newProgress[id] = progress;
+            });
+            setFileProgress(newProgress);
+          },
         }
-        return 0;
-      };
-
-      const calculateCompressionPercentage = () => {
-        if (beforeSize && afterSize && beforeSize > afterSize) {
-          return (((beforeSize - afterSize) / beforeSize) * 100).toFixed(1);
-        }
-        return 0;
-      };
+      );
 
       const processedFiles = response.data.processed;
       const optimizedFiles = new Set();

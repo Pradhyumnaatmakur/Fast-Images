@@ -1,44 +1,13 @@
 import express from "express";
-import cors from "cors";
 import { fileRouter } from "./routes/fileRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { configDotenv } from "dotenv";
+import dotenv from "dotenv";
 import path from "path";
 
-configDotenv();
+dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 10000;
-const HOST = "0.0.0.0";
+const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:10000",
-  "http://127.0.0.1:5173",
-  "http://127.0.0.1:10000",
-  "https://fast-images.onrender.com",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (process.env.NODE_ENV === "development") {
-        return callback(null, true);
-      }
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Accept"],
-    credentials: true,
-  })
-);
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -54,13 +23,13 @@ app.get("/api/test", (req, res) => {
 
 app.use("/api/files", fileRouter);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-  });
-}
+// All other requests should serve the React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
 
 app.use("/api/*", (req, res) => {
   res.status(404).json({ message: "API endpoint not found" });
@@ -68,8 +37,8 @@ app.use("/api/*", (req, res) => {
 
 app.use(errorHandler);
 
-const server = app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });
 
