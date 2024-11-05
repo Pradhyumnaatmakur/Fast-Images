@@ -7,20 +7,39 @@ import path from "path";
 
 configDotenv();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
+const HOST = "0.0.0.0";
 const __dirname = path.resolve();
 
-// Simplified CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:10000",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:10000",
+  "https://fast-images.onrender.com",
+];
+
 app.use(
   cors({
-    origin: true, // Allow all origins in development
+    origin: function (origin, callback) {
+      if (process.env.NODE_ENV === "development") {
+        return callback(null, true);
+      }
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Accept"],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
   })
 );
 
-// Body parser middleware
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
@@ -29,14 +48,12 @@ app.get("/api/test", (req, res) => {
   res.json({
     message: "Backend is working!",
     environment: process.env.NODE_ENV,
-    port: process.env.PORT,
+    port: PORT,
   });
 });
 
-// API routes
 app.use("/api/files", fileRouter);
 
-// Serve static files in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
@@ -45,15 +62,16 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// 404 handler for API routes
 app.use("/api/*", (req, res) => {
   res.status(404).json({ message: "API endpoint not found" });
 });
 
-// Global error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });
+
+server.keepAliveTimeout = 120000; //
+server.headersTimeout = 120000; //
