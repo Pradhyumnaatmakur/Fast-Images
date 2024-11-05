@@ -32,7 +32,7 @@ A modern, efficient image compression web application built with React and Node.
 
 1. Clone the repository:
 ```bash 
-git clone https://github.com/Pradhyumnaatmakur/fast-images
+git clone https://github.com/Pradhyumnaatmakur/Fast-Images.git
 cd image-compressor
 ```
 
