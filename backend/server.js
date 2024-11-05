@@ -10,38 +10,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
-// Updated CORS configuration with development mode handling
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5000",
-  "http://127.0.0.1:5173",
-  "http://127.0.0.1:5000",
-  "https://fast-images.onrender.com",
-];
-
+// Simplified CORS configuration
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (process.env.NODE_ENV === "development") {
-        return callback(null, true);
-      }
-
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Accept"],
+    origin: true, // Allow all origins in development
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
   })
 );
 
+// Body parser middleware
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Test route
 app.get("/api/test", (req, res) => {
   res.json({
     message: "Backend is working!",
@@ -50,11 +33,10 @@ app.get("/api/test", (req, res) => {
   });
 });
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-
+// API routes
 app.use("/api/files", fileRouter);
 
+// Serve static files in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
@@ -63,6 +45,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+// 404 handler for API routes
 app.use("/api/*", (req, res) => {
   res.status(404).json({ message: "API endpoint not found" });
 });
