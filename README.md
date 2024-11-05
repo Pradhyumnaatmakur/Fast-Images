@@ -1,85 +1,125 @@
-Fast Images
-A modern, efficient image compression web application built with React and Node.js. Fast Images allows users to compress and convert images while maintaining quality, offering flexibility and speed in handling various image formats.
+# Image Compressor
 
-Features
-Supports multiple image formats: WebP, JPEG, PNG
-Batch processing: Configurable batch sizes for efficient handling
-Adjustable compression quality: Ranges from 1-100%
-Individual and bulk downloads: Download images individually or as a ZIP file
-Automatic file cleanup: Removes files after one hour to save space
-LRU Cache implementation: Ensures efficient memory usage
-Real-time compression statistics: Displays insights on compression
-Already-optimized image detection: Avoids re-processing optimized images
-Drag-and-drop interface: Easy-to-use interface for image uploads
-Tech Stack
-Frontend:
+A modern, efficient image compression web application built with React and Node.js that allows users to compress and convert images to different formats while maintaining quality.
 
-React
-TailwindCSS
-Heroicons
-React-dropzone
-Axios
-React Hot Toast
-Backend:
+![Image Compressor Demo](https://github.com/yourusername/image-compressor/raw/main/demo.gif)
 
-Node.js
-Sharp: For image processing
-JSZip: For packaging multiple images
-UUID: For unique file identification
-Installation
-Clone the repository:
+## Features
 
-git clone https://github.com/your-username/fast-images.git
-cd fast-images
-Install backend dependencies:
+- 🖼️ Support for multiple image formats (WebP, JPEG, PNG)
+- 📦 Batch processing with progress tracking
+- 🎚️ Adjustable compression quality
+- 💾 Individual and bulk downloads
+- ⚡ Efficient caching mechanism
+- 📊 Real-time compression statistics
+- 🎯 Automatic optimization detection
 
-cd backend
+## Technologies Used
+
+- Frontend:
+  - React
+  - Tailwind CSS
+  - Axios
+  - React Dropzone
+  - Hero Icons
+  - React Hot Toast
+
+- Backend:
+  - Node.js
+  - Sharp (for image processing)
+  - UUID
+  - JSZip
+
+## Installation
+
+1. Clone the repository:
+```bash 
+git clone https://github.com/Pradhyumnaatmakur/fast-images
+cd image-compressor
+```
+
+2. Install dependencies for both frontend and backend:
+```bash
+# Install backend dependencies
+cd server
 npm install
-Install frontend dependencies:
 
-cd ../frontend
+# Install frontend dependencies
+cd ../client
 npm install
-Configuration:
+```
 
-Create a .env file in the backend directory with the following contents:
-PORT=5000
-NODE_ENV=development
-Usage
-Start the backend server:
-
-cd backend
-npm run dev
-Start the frontend development server:
-
-cd ../frontend
+3. Start the development servers:
+```bash
+# Start backend server (from server directory)
 npm start
-Access the application at http://localhost:3000
 
-API Endpoints
-Convert Images:
+# Start frontend development server (from client directory)
+npm start
+```
 
-Endpoint: POST /api/files/convert
-Body: FormData with images, format, and quality
-Download Single Image:
+The application will be available at `http://localhost:3000`
 
-Endpoint: GET /api/files/download/:fileId
-Returns: Processed image file
-Download All Images:
+## Usage
 
-Endpoint: POST /api/files/download-all
-Returns: ZIP file containing all processed images
-Performance Features
-Batch processing: Configurable sizes for efficient processing
-LRU Cache: Ensures optimal memory management
-Automatic cleanup: Old files are removed after one hour
-Concurrent batch processing limits: Manages batch sizes for faster performance
-Optimized image processing pipeline: Improves speed and reliability
-Contributing
-Fork the repository
-Create your feature branch: git checkout -b feature/YourFeature
-Commit your changes: git commit -m 'Add YourFeature'
-Push to the branch: git push origin feature/YourFeature
-Open a Pull Request
-License
-This project is licensed under the MIT License. See LICENSE for details.
+1. Drag and drop images or click to select files
+2. Choose the desired output format (WebP, JPEG, or PNG)
+3. Adjust the quality slider (1-100)
+4. Click "Compress Images" to start processing
+5. Download individual images or use "Download All as ZIP"
 
+## Key Features Explained
+
+### Batch Processing
+- Images are processed in batches of 5
+- Concurrent processing is limited to maintain performance
+- Progress tracking for each file
+
+### Caching System
+- LRU (Least Recently Used) cache implementation
+- Automatically cleans up processed files after 1 hour
+- Efficient memory management
+
+### Optimization Detection
+- Automatically detects if images are already optimized
+- Prevents unnecessary compression
+- Provides user feedback for optimized files
+
+## API Endpoints
+
+### POST `/api/files/convert`
+Convert and compress uploaded images
+- Body: FormData with images, format, and quality
+- Returns: Processed file information
+
+### GET `/api/files/download/:fileId`
+Download a single processed file
+- Params: fileId
+- Returns: Processed image file
+
+### POST `/api/files/download-all`
+Download multiple files as ZIP
+- Body: Array of fileIds
+- Returns: ZIP file containing all processed images
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Sharp](https://sharp.pixelplumbing.com/) for the excellent image processing library
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
+- [React Dropzone](https://react-dropzone.js.org/) for the file upload functionality
+
+## Support
+
+For support, please open an issue in the GitHub repository or contact [your-email@example.com](mailto:your-email@example.com)
