@@ -57,7 +57,7 @@ const ImageCompressor = () => {
     try {
       setDownloading(true);
       const response = await axios({
-        url: `http://localhost:5000/api/files/download/${fileId}`,
+        url: `https://fast-images.onrender.com/api/files/download/${fileId}`,
         method: "GET",
         responseType: "blob",
       });
@@ -89,7 +89,7 @@ const ImageCompressor = () => {
     setDownloading(true);
     try {
       const response = await axios({
-        url: "http://localhost:5000/api/files/download-all",
+        url: "https://fast-images.onrender.com/api/files/download-all",
         method: "POST",
         data: { fileIds: results.map((r) => r.fileId) },
         responseType: "blob",
@@ -145,7 +145,7 @@ const ImageCompressor = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/files/convert",
+        "https://fast-images.onrender.com/api/files/convert",
         formData,
         {
           onUploadProgress: (progressEvent) => {
