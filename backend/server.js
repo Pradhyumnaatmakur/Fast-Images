@@ -27,6 +27,14 @@ app.use("/api/files", fileRouter);
 
 app.use(errorHandler);
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
+
 app.use("/api/*", (req, res) => {
   res.status(404).json({ message: "API endpoint not found" });
 });
