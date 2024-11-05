@@ -1,4 +1,4 @@
-# Image Compressor
+# Fast Images
 
 A modern, efficient image compression web application built with React and Node.js that allows users to compress and convert images to different formats while maintaining quality.
 
