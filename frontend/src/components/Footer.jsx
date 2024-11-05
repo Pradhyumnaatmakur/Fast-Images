@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="bg-black text-white py-4 mt-auto font-mono">
       <div className="container mx-auto px-4 text-center">
         <p>
-          &copy; {new Date().getFullYear()} FASTIMAGES. All rights reserved.
+          &copy; {new Date().getFullYear()} FAST IMAGES. All rights reserved.
         </p>
       </div>
     </footer>

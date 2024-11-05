@@ -1,4 +1,3 @@
-// fileRoutes.js
 import express from "express";
 import multer from "multer";
 import {
@@ -21,9 +20,8 @@ const upload = multer({
   },
 }).array("images");
 
-export const fileRouter = express.Router(); // Changed to named export
+export const fileRouter = express.Router(); //
 
-// Middleware to handle file upload
 const handleUpload = (req, res, next) => {
   upload(req, res, (err) => {
     if (err instanceof multer.MulterError) {

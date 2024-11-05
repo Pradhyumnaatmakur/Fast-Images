@@ -7,9 +7,9 @@ export default {
       },
       colors: {
         primary: {
-          DEFAULT: "#000000",
-          contrast: "#ffffff",
+          DEFAULT: "#000000", // Black as primary color
         },
+        white: "#ffffff", // Adding white color separately if needed
       },
     },
   },

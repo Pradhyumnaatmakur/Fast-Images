@@ -1,8 +1,6 @@
-// middleware/errorHandler.js
 export const errorHandler = (err, req, res, next) => {
   console.error("Error:", err);
 
-  // Handle Multer errors
   if (err.code === "LIMIT_FILE_SIZE") {
     return res.status(400).json({
       message: "File too large",
