@@ -2,8 +2,6 @@
 
 A modern, efficient image compression web application built with React and Node.js that allows users to compress and convert images to different formats while maintaining quality.
 
-![Image Compressor Demo](https://github.com/yourusername/image-compressor/raw/main/demo.gif)
-
 ## Features
 
 - 🖼️ Support for multiple image formats (WebP, JPEG, PNG)
