@@ -119,7 +119,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Sharp](https://sharp.pixelplumbing.com/) for the excellent image processing library
 - [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
 - [React Dropzone](https://react-dropzone.js.org/) for the file upload functionality
-
-## Support
-
-For support, please open an issue in the GitHub repository or contact [your-email@example.com](mailto:your-email@example.com)
