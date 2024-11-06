@@ -28,45 +28,7 @@ A modern, efficient image compression web application built with React and Node.
   - UUID
   - JSZip
 
-## Installation
-
-1. Clone the repository:
-```bash 
-git clone https://github.com/Pradhyumnaatmakur/Fast-Images.git
-cd image-compressor
-```
-
-2. Install dependencies for both frontend and backend:
-```bash
-# Install backend dependencies
-cd server
-npm install
-
-# Install frontend dependencies
-cd ../client
-npm install
-```
-
-3. Start the development servers:
-```bash
-# Start backend server (from server directory)
-npm start
-
-# Start frontend development server (from client directory)
-npm start
-```
-
-The application will be available at `http://localhost:3000`
-
-## Usage
-
-1. Drag and drop images or click to select files
-2. Choose the desired output format (WebP, JPEG, or PNG)
-3. Adjust the quality slider (1-100)
-4. Click "Compress Images" to start processing
-5. Download individual images or use "Download All as ZIP"
-
-## Key Features Explained
+## Key Features
 
 ### Batch Processing
 - Images are processed in batches of 5
@@ -99,14 +61,6 @@ Download a single processed file
 Download multiple files as ZIP
 - Body: Array of fileIds
 - Returns: ZIP file containing all processed images
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## License
 
