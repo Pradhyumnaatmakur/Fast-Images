@@ -32,7 +32,7 @@ A modern, efficient image compression web application built with React and Node.
 
 ### Batch Processing
 - Images are processed in batches of 5
-- Concurrent processing is limited to maintain performance
+- Concurrent processing is limited to maintaining performance
 - Progress tracking for each file
 
 ### Caching System
